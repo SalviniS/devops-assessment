@@ -1,0 +1,21 @@
+version: '3.9'
+
+services:
+  backend:
+    build: ./backend
+    container_name: devops-assessment-backend
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend:/app
+      - ./backend/db_data:/app/db_data
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    container_name: devops-assessment-frontend
+    ports:
+      - "3000:80"
+    volumes:
+      - ./frontend:/app
+      - ./frontend/nginx_cache:/var/cache/nginx
