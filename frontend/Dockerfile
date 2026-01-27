@@ -6,6 +6,7 @@ WORKDIR /app
 
 # Copy both package.json and package-lock.json
 COPY package.json package-lock.json ./
+RUN npm config set optional=false
 
 # Install exact dependencies from lock file
 RUN npm install --omit=optional
