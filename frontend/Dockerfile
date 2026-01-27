@@ -1,22 +1,23 @@
+
 # -------------------------------
-# Stage 1: Build Vite React frontend
+# Stage 1: Build React frontend
 # -------------------------------
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Install build tools (safe to keep)
+# Install build tools for optional native deps
 RUN apk add --no-cache python3 g++ make git bash
 
 # Copy dependency files
 COPY package.json package-lock.json ./
 
-# Install dependencies
+# Install deps
 RUN npm ci
 
-# Copy source code
+# Copy source
 COPY . .
 
-# Build Vite app (creates /app/dist)
+# Build React app
 RUN npm run build
 
 # -------------------------------
@@ -24,14 +25,20 @@ RUN npm run build
 # -------------------------------
 FROM nginx:alpine
 
-# Copy Vite build output
+# Copy build output
 COPY --from=builder /app/dist /usr/share/nginx/html
+
+
+# Create directories (optional)
+RUN mkdir -p /var/cache/nginx /var/run \
+    && chmod -R 777 /var/cache/nginx /var/run /usr/share/nginx/html
 
 # Expose port
 EXPOSE 80
 
-# Use nginx default user
+# Use non-root user
 USER nginx
 
-# Start nginx
+# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
+
