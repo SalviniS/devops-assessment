@@ -1,0 +1,6 @@
+node_modules/
+.vite/
+nginx_cache/
+package-lock.json
+dist/
+build/
