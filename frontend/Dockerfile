@@ -4,15 +4,13 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Copy both package.json and package-lock.json
+# Copy dependency files
 COPY package.json package-lock.json ./
-RUN npm config set optional=false
 
-# Install exact dependencies from lock file
+# Install deps (skip Windows-only optional deps)
 RUN npm install --omit=optional
 
-
-# Copy all frontend code
+# Copy source
 COPY . .
 
 # Build React app
@@ -23,17 +21,14 @@ RUN npm run build
 # -------------------------------
 FROM nginx:alpine
 
-# Create a non-root user
+# Create non-root user
 RUN adduser -D appuser
 
-# Copy build output from builder stage
+# Copy build output
 COPY --from=builder /app/build /usr/share/nginx/html
 
-# Use non-root user
+# Run as non-root
 USER appuser
 
-# Expose port 80
 EXPOSE 80
-
-# Start nginx
 CMD ["nginx", "-g", "daemon off;"]
