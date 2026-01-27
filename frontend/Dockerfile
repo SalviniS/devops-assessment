@@ -4,11 +4,14 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
+# Install build tools for optional native deps
+RUN apk add --no-cache python3 g++ make git bash
+
 # Copy dependency files
 COPY package.json package-lock.json ./
 
-# Install deps (skip Windows-only optional deps)
-RUN npm install --omit=optional
+# Install deps
+RUN npm ci
 
 # Copy source
 COPY . .
@@ -21,14 +24,14 @@ RUN npm run build
 # -------------------------------
 FROM nginx:alpine
 
-# Create non-root user
-RUN adduser -D appuser
-
 # Copy build output
 COPY --from=builder /app/build /usr/share/nginx/html
 
-# Run as non-root
-USER appuser
-
+# Expose port
 EXPOSE 80
+
+# Use default nginx user (nginx)
+USER nginx
+
+# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
