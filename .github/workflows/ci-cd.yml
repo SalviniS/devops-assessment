@@ -10,31 +10,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      # Step 1: Checkout repo
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    # Login to Docker Hub
-    - name: Login to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+      # Step 2: Log in to Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-    # Build and push backend image
-    - name: Build and Push Backend
-      uses: docker/build-push-action@v5
-      with:
-        context: ./backend
-        file: ./backend/Dockerfile
-        push: true
-        tags: ${{ secrets.DOCKER_USERNAME }}/backend:latest
+      # Step 3: Build Docker images
+      - name: Build Backend Image
+        run: |
+          docker build -t salvini007/django_app_backend:latest ./backend
+      - name: Build Frontend Image
+        run: |
+          docker build -t salvini007/react_app_frontend:latest ./frontend
 
-    # Build and push frontend image
-    - name: Build and Push Frontend
-      uses: docker/build-push-action@v5
-      with:
-        context: ./frontend
-        file: ./frontend/Dockerfile
-        push: true
-        tags: ${{ secrets.DOCKER_USERNAME }}/frontend:latest
+      # Step 4: Push Docker images
+      - name: Push Backend Image
+        run: docker push salvini007/django_app_backend:latest
+      - name: Push Frontend Image
+        run: docker push salvini007/react_app_fronend:latest
+
 
