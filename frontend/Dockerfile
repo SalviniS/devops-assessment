@@ -8,7 +8,8 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # Install exact dependencies from lock file
-RUN npm ci
+RUN npm install --omit=optional
+
 
 # Copy all frontend code
 COPY . .
